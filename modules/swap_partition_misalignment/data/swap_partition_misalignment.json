@@ -1,0 +1,166 @@
+{
+  "name": "swap_partition_misalignment",
+  "description": "Swap partition misalignment is a technical issue that occurs when the start of a swap partition is not aligned with the start of a physical block on a hard drive. This can happen during partitioning, and can negatively impact system performance. When swap partition misalignment occurs, the operating system has to perform additional operations to access the swap space, which can slow down the system. Therefore, it is important to ensure proper alignment of swap partitions during installation or partitioning in order to avoid this issue.",
+  "params": [
+    {
+      "name": "SWAP_PARTITION_LOCATION",
+      "value": ""
+    },
+    {
+      "name": "SECTOR_SIZE",
+      "value": ""
+    },
+    {
+      "name": "SWAP_START_SECTOR",
+      "value": ""
+    },
+    {
+      "name": "ROOT_PARTITION_LOCATION",
+      "value": ""
+    },
+    {
+      "name": "SWAP_PARTITION",
+      "value": ""
+    },
+    {
+      "name": "NEW_SIZE_IN_MB",
+      "value": ""
+    },
+    {
+      "name": "PARTITION_DEVICE",
+      "value": ""
+    },
+    {
+      "name": "SWAP_PARTITION_NUMBER",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Swap Partition Misalignment\nSwap partition misalignment is a technical issue that occurs when the start of a swap partition is not aligned with the start of a physical block on a hard drive. This can happen during partitioning, and can negatively impact system performance. When swap partition misalignment occurs, the operating system has to perform additional operations to access the swap space, which can slow down the system. Therefore, it is important to ensure proper alignment of swap partitions during installation or partitioning in order to avoid this issue."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check system memory usage"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `free -h`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Show disk space usage and partition information"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `df -h`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Display swap partition usage"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `swapon -s`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if any swap file/partition has been disabled"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo swapon --show=NAME,SIZE,USED,PRIO`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the system is using the swap space excessively"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `vmstat -s`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there is any misalignment in the swap partition"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo filefrag -v ${SWAP_PARTITION_LOCATION}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there is any misalignment in the root partition"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `sudo filefrag -v ${ROOT_PARTITION_LOCATION}`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Realigning swap partitions manually: This can be done by calculating the correct offset value for the swap partition and then using a tool like "
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_partition_table($SECTOR_SIZE, $SWAP_START_SECTOR, $PARTITION_DEVICE, $SWAP_PARTITION_NUMBER)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increasing swap partition size: If the misalignment issue is caused by running out of space on the swap partition, simply increasing"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_increase_swap_partition_size($SWAP_PARTITION, $NEW_SIZE_IN_MB)"
+    }
+  ]
+}
